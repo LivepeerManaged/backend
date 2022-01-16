@@ -3,6 +3,7 @@ import {GraphQLModule} from "@nestjs/graphql";
 import {TestResolver} from "./resolver/TestResolver";
 import {ConfigModule, ConfigService} from "@nestjs/config";
 import configuration from "../../config/configuration";
+import {AuthModule} from "../Auth/AuthModule";
 
 @Module({
     imports: [
@@ -15,6 +16,7 @@ import configuration from "../../config/configuration";
             autoSchemaFile: true,
             //context: ({req}) => ({currentUser: req.user}),
         }),
+        AuthModule
     ],
     controllers: [],
     providers: [TestResolver],
