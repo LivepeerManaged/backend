@@ -1,5 +1,6 @@
 import {Module} from "@nestjs/common";
 import {GraphQLModule} from "@nestjs/graphql";
+import {TestResolver} from "./resolver/TestResolver";
 import {ConfigModule, ConfigService} from "@nestjs/config";
 import configuration from "../../config/configuration";
 
@@ -16,6 +17,6 @@ import configuration from "../../config/configuration";
         }),
     ],
     controllers: [],
-    providers: [],
+    providers: [TestResolver],
 })
 export class AppModule {}
