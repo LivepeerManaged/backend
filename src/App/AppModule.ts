@@ -1,5 +1,4 @@
 import {Module} from "@nestjs/common";
-import {TestResolver} from "./resolver/TestResolver";
 import {ConfigModule} from "@nestjs/config";
 import configuration from "../../config/configuration";
 import {AuthModule} from "../Auth/AuthModule";
@@ -24,6 +23,5 @@ import {DaemonModule} from "../Daemon/DaemonModule";
         DaemonModule
     ],
     controllers: [],
-    providers: [TestResolver],
 })
 export class AppModule {}
