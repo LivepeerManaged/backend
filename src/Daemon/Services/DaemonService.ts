@@ -2,14 +2,16 @@
 import {EntityNotFoundError, Repository} from "typeorm";
 import {DaemonEntity} from "../Entities/DaemonEntity";
 import {InjectRepository} from "@nestjs/typeorm";
-import crypto, {PublicKeyInput} from "crypto";
+import {DaemonNotFoundError} from "../Errors/DaemonNotFoundError";
+import {DaemonAlreadyExistsError} from "../Errors/DaemonAlreadyExistsError";
+import {DaemonSecretMismatchError} from "../Errors/DaemonSecretMismatchError";
 
 @Injectable()
 export class DaemonService {
     constructor(@InjectRepository(DaemonEntity) private daemonRepository: Repository<DaemonEntity>) {
     }
 
-    private generateSecret(length) {
+    private static generateSecret(length) {
         const randomChars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
         let result = '';
         for (let i = 0; i < length; i++)
@@ -20,9 +22,12 @@ export class DaemonService {
     async createDaemon(publicKey: string): Promise<DaemonEntity> {
         const daemon = this.daemonRepository.create({
             publicKey: publicKey,
-            daemonSecret: this.generateSecret(32),
+            daemonSecret: DaemonService.generateSecret(32),
         });
-        await this.daemonRepository.insert(daemon);
+
+        await this.daemonRepository.insert(daemon).catch(e => {
+            throw new DaemonAlreadyExistsError(publicKey);
+        });
         return daemon;
     }
 
@@ -31,7 +36,7 @@ export class DaemonService {
             return await this.daemonRepository.findOneOrFail({where: {publicKey: publicKey}});
         } catch (e) {
             if(e instanceof EntityNotFoundError) {
-                throw new Error("Daemon Not Found");
+                throw new DaemonNotFoundError(publicKey);
             }
         }
     }
@@ -39,20 +44,21 @@ export class DaemonService {
     async activateDaemon(publicKey: string, daemonSecret: string) {
         const daemonEntity: DaemonEntity = await this.getDaemonByPublicKey(publicKey);
 
-        if(daemonEntity.daemonSecret != daemonSecret) {
-            throw new Error("Daemon Secret does not match!");
+        if(daemonSecret != daemonEntity.daemonSecret) {
+            throw new DaemonSecretMismatchError(publicKey, daemonSecret, daemonEntity.daemonSecret);
         }
 
         daemonEntity.activated = true;
 
         await this.daemonRepository.save(daemonEntity);
-
         return true;
     }
 
+    /*
     private convertDerPublicToPem(der) {
         const prefix = '-----BEGIN RSA PUBLIC KEY-----\n';
         const postfix = '-----END RSA PUBLIC KEY-----';
         return prefix + der.match(/.{0,64}/g).join('\n') + postfix;
     }
+     */
 }
