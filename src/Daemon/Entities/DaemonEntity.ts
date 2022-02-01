@@ -5,18 +5,18 @@ export class DaemonEntity {
     @PrimaryGeneratedColumn('uuid')
     public id: string;
 
-    @Column("text")
+    @Column({length: 360, unique: true})
     public publicKey: string;
 
     @Column()
     public daemonSecret: string;
 
-    @Column()
+    @Column({default: 'Daemon'})
     public label: string;
 
-    @Column()
+    @Column({default: () => 'CURRENT_TIMESTAMP'})
     public createdAt: Date;
 
-    @Column()
+    @Column({default: false})
     public activated: boolean;
 }

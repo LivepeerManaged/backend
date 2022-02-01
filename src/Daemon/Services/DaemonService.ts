@@ -20,10 +20,7 @@ export class DaemonService {
     async createDaemon(publicKey: string): Promise<DaemonEntity> {
         const daemon = this.daemonRepository.create({
             publicKey: publicKey,
-            createdAt: new Date(),
-            label: 'Daemon',
             daemonSecret: this.generateSecret(32),
-            activated: false,
         });
         await this.daemonRepository.insert(daemon);
         return daemon;
