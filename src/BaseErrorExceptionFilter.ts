@@ -5,12 +5,15 @@ import {BaseError} from "./BaseError";
 import {randomUUID} from "crypto";
 import {LoggingService} from "./Logger/Services/loggingService";
 import {Logger} from "tslog";
+import {yellow} from "colors";
 
 @Catch(BaseError)
 export class BaseErrorExceptionFilter implements ExceptionFilter {
     private logger = new Logger({
         name: 'ErrorLogger',
         minLevel: 'debug',
+        displayFunctionName: false,
+        displayFilePath: "hidden"
     });
 
     constructor(private readonly httpAdapterHost: HttpAdapterHost) {}
@@ -25,13 +28,14 @@ export class BaseErrorExceptionFilter implements ExceptionFilter {
             parameters[entry[0]] = entry[1];
         });
 
-        this.logger.error(error.message, parameters);
+        this.logger.setSettings({requestId: uuid}); //TODO check if there is a better way :<. but its kinda nice :>
+
+        //TODO add info for logged in daemon/user
+        this.logger.error(yellow(error.message), parameters);
 
         const responseBody = {
             id: uuid,
-            error: error.name,
             message: error.message,
-            parameters: parameters
         };
 
         httpAdapter.reply(ctx.getResponse(), responseBody);

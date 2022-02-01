@@ -1,6 +1,6 @@
 ﻿import {BaseError} from "../../BaseError";
 
-export class DaemonWrongSignatureError extends BaseError {
+export class DaemonInvalidSignatureError extends BaseError {
     constructor(publicKey, signature) {
         super(`Daemon Signature Failed!`, [
                 ['publicKey', publicKey],
