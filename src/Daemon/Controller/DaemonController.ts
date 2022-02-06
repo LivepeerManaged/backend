@@ -1,6 +1,6 @@
 ﻿import {Body, Controller, Param, Post} from "@nestjs/common";
 import {DaemonService} from "../Services/DaemonService";
-import {DaemonEntity} from "../Entities/DaemonEntity";
+import {Daemon} from "../Entities/Daemon";
 import {DaemonNotFoundError} from "../Errors/DaemonNotFoundError";
 import {InvalidSignatureError} from "../Errors/InvalidSignatureError";
 
@@ -12,7 +12,7 @@ export class DaemonController {
     }
 
     @Post('createDaemon')
-    public async createDaemon(@Body('publicKey') publicKey): Promise<DaemonEntity | DaemonNotFoundError> {
+    public async createDaemon(@Body('publicKey') publicKey): Promise<Daemon | DaemonNotFoundError> {
         return await this.daemonService.createDaemon(publicKey);
     }
 

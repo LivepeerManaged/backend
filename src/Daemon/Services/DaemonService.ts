@@ -1,6 +1,6 @@
 ﻿import {Injectable} from "@nestjs/common";
 import {EntityNotFoundError, Repository} from "typeorm";
-import {DaemonEntity} from "../Entities/DaemonEntity";
+import {Daemon} from "../Entities/Daemon";
 import {InjectRepository} from "@nestjs/typeorm";
 import {DaemonNotFoundError} from "../Errors/DaemonNotFoundError";
 import {DaemonAlreadyExistsError} from "../Errors/DaemonAlreadyExistsError";
@@ -8,7 +8,7 @@ import {DaemonSecretMismatchError} from "../Errors/DaemonSecretMismatchError";
 
 @Injectable()
 export class DaemonService {
-    constructor(@InjectRepository(DaemonEntity) private daemonRepository: Repository<DaemonEntity>) {
+    constructor(@InjectRepository(Daemon) private daemonRepository: Repository<Daemon>) {
     }
 
     private static generateSecret(length) {
@@ -19,7 +19,7 @@ export class DaemonService {
         return result;
     }
 
-    async createDaemon(publicKey: string): Promise<DaemonEntity> {
+    async createDaemon(publicKey: string): Promise<Daemon> {
         const daemon = this.daemonRepository.create({
             publicKey: publicKey,
             daemonSecret: DaemonService.generateSecret(32),
@@ -31,7 +31,7 @@ export class DaemonService {
         return daemon;
     }
 
-    async getDaemonByPublicKey(publicKey: string): Promise<DaemonEntity> {
+    async getDaemonByPublicKey(publicKey: string): Promise<Daemon> {
         try {
             return await this.daemonRepository.findOneOrFail({where: {publicKey: publicKey}});
         } catch (e) {
@@ -42,7 +42,7 @@ export class DaemonService {
     }
 
     async activateDaemon(publicKey: string, daemonSecret: string): Promise<boolean> {
-        const daemonEntity: DaemonEntity = await this.getDaemonByPublicKey(publicKey);
+        const daemonEntity: Daemon = await this.getDaemonByPublicKey(publicKey);
 
         if(daemonSecret != daemonEntity.daemonSecret) {
             throw new DaemonSecretMismatchError(publicKey, daemonSecret);

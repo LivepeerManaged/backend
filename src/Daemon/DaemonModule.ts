@@ -3,11 +3,11 @@ import {AuthModule} from "../Auth/AuthModule";
 import {TypeOrmModule} from "@nestjs/typeorm";
 import {DaemonController} from "./Controller/DaemonController";
 import {DaemonService} from "./Services/DaemonService";
-import {DaemonEntity} from "./Entities/DaemonEntity";
+import {Daemon} from "./Entities/Daemon";
 
 @Module({
     imports: [
-        TypeOrmModule.forFeature([DaemonEntity])
+        TypeOrmModule.forFeature([Daemon])
     ],
     controllers: [
         DaemonController
