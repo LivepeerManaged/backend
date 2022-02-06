@@ -1,8 +1,6 @@
-import {forwardRef, Module} from "@nestjs/common";
-import {TestController} from "./TestController";
+import {Module} from "@nestjs/common";
 import {AuthService} from "./services/AuthService";
-import {ConfigModule, ConfigService} from "@nestjs/config";
-import {JwtModule, JwtService} from "@nestjs/jwt";
+import {JwtModule} from "@nestjs/jwt";
 import {PassportModule} from "@nestjs/passport";
 import configuration from "../../config/configuration";
 import {JwtStrategy} from "./strategies/JwtStrategy";
@@ -16,7 +14,7 @@ import {JwtStrategy} from "./strategies/JwtStrategy";
             secret: configuration().jwtSecret,
         })
     ],
-    controllers: [TestController],
+    controllers: [],
     providers: [
         AuthService, JwtStrategy
 

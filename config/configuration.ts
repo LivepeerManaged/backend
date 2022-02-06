@@ -13,4 +13,5 @@
         logging: true,
         cache: false,
     }
+    //TODO add loglevel
 });
