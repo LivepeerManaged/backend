@@ -31,13 +31,13 @@ export class BaseErrorExceptionFilter implements ExceptionFilter {
         this.logger.setSettings({requestId: uuid}); //TODO check if there is a better way :<. but its kinda nice :>
 
         //TODO add info for logged in daemon/user
-        this.logger.error(yellow(error.message), parameters);
+        this.logger.error(`${yellow(`[${error.name}]`)} ${error.message}`, parameters);
 
         const responseBody = {
             id: uuid,
+            name: error.name,
             message: error.message,
         };
-
-        httpAdapter.reply(ctx.getResponse(), responseBody);
+        httpAdapter.reply(ctx.getResponse(), responseBody, HttpStatus.BAD_REQUEST);
     }
 }

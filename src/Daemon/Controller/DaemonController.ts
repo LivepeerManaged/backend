@@ -1,5 +1,8 @@
 ﻿import {Body, Controller, Param, Post} from "@nestjs/common";
 import {DaemonService} from "../Services/DaemonService";
+import {DaemonEntity} from "../Entities/DaemonEntity";
+import {DaemonNotFoundError} from "../Errors/DaemonNotFoundError";
+import {InvalidSignatureError} from "../Errors/InvalidSignatureError";
 
 const crypto = require("crypto");
 
@@ -9,10 +12,7 @@ export class DaemonController {
     }
 
     @Post('createDaemon')
-    public async createDaemon(@Body('publicKey') publicKey) {
-        if (!publicKey) {
-            return "Public key missing";
-        }
+    public async createDaemon(@Body('publicKey') publicKey): Promise<DaemonEntity | DaemonNotFoundError> {
         return await this.daemonService.createDaemon(publicKey);
     }
 
@@ -37,12 +37,7 @@ export class DaemonController {
             throw new InvalidSignatureError(publicKey, signature)
         }
 
-        try {
-            return await this.daemonService.activateDaemon(publicKey, daemonSecret);
-        } catch (e) {
-            console.error(e);
-            return e.message;
-        }
+        return await this.daemonService.activateDaemon(publicKey, daemonSecret);
     }
 
     private removeWhitespaces = (s: string) => s.replace(/ /g, '');

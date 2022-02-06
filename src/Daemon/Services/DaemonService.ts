@@ -41,7 +41,7 @@ export class DaemonService {
         }
     }
 
-    async activateDaemon(publicKey: string, daemonSecret: string) {
+    async activateDaemon(publicKey: string, daemonSecret: string): Promise<boolean> {
         const daemonEntity: DaemonEntity = await this.getDaemonByPublicKey(publicKey);
 
         if(daemonSecret != daemonEntity.daemonSecret) {
