@@ -2,7 +2,7 @@
 
 export class DaemonSecretMismatchError extends BaseError {
     constructor(publicKey, providedSecret) {
-        super(`Daemon Secret Mismatch!`, [
+        super('DaemonSecretMismatch', `Wrong secret for Daemon!`, [
                 ['publicKey', publicKey],
                 ['providedSecret', providedSecret],
             ]

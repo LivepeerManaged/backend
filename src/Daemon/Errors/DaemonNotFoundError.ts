@@ -2,7 +2,7 @@
 
 export class DaemonNotFoundError extends BaseError {
     constructor(publicKey) {
-        super(`Daemon not Found!`, [
+        super('DaemonNotFound', `Daemon was not found!`, [
                 ['publicKey', publicKey]
             ]
         );

@@ -45,7 +45,7 @@ export class DaemonService {
         const daemonEntity: DaemonEntity = await this.getDaemonByPublicKey(publicKey);
 
         if(daemonSecret != daemonEntity.daemonSecret) {
-            throw new DaemonSecretMismatchError(publicKey, daemonSecret, daemonEntity.daemonSecret);
+            throw new DaemonSecretMismatchError(publicKey, daemonSecret);
         }
 
         daemonEntity.activated = true;

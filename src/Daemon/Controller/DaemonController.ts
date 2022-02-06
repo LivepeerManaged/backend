@@ -34,7 +34,7 @@ export class DaemonController {
         }
 
         if (!this.verifySignature(publicKey, daemonSecret, signature)) {
-            return "Failed to verify Signature!";
+            throw new InvalidSignatureError(publicKey, signature)
         }
 
         try {

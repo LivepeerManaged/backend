@@ -2,7 +2,7 @@
 
 export class DaemonAlreadyExistsError extends BaseError {
     constructor(publicKey) {
-        super(`Daemon already Registered`, [
+        super('DaemonAlreadyExists', `Daemon is already Registered`, [
                 ['publicKey', publicKey]
             ]
         );
