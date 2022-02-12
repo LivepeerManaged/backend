@@ -5,10 +5,11 @@ import {InjectRepository} from "@nestjs/typeorm";
 import {DaemonNotFoundError} from "../Errors/DaemonNotFoundError";
 import {DaemonAlreadyExistsError} from "../Errors/DaemonAlreadyExistsError";
 import {DaemonSecretMismatchError} from "../Errors/DaemonSecretMismatchError";
+import {UserService} from "../../User/Services/UserService";
 
 @Injectable()
 export class DaemonService {
-    constructor(@InjectRepository(Daemon) private daemonRepository: Repository<Daemon>) {
+    constructor(@InjectRepository(Daemon) private daemonRepository: Repository<Daemon>, private userService: UserService) {
     }
 
     private static generateSecret(length) {
@@ -19,10 +20,11 @@ export class DaemonService {
         return result;
     }
 
-    async createDaemon(publicKey: string): Promise<Daemon> {
+    async createDaemon(userId: string, publicKey: string): Promise<Daemon> {
         const daemon = this.daemonRepository.create({
             publicKey: publicKey,
             daemonSecret: DaemonService.generateSecret(32),
+            user: await this.userService.getUserById(userId)
         });
 
         await this.daemonRepository.insert(daemon).catch(e => {

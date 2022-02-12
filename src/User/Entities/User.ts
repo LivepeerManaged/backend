@@ -14,6 +14,6 @@ export class User {
     @Column()
     password: string;
 
-    @OneToMany(() => Daemon, daemon => daemon.user)
+    @OneToMany(() => Daemon, daemon => daemon.user, {eager: true})
     daemons: Array<Daemon>;
 }

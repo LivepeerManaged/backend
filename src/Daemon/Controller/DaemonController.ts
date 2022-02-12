@@ -20,8 +20,7 @@ export class DaemonController {
     @Post('createDaemon')
     @UseGuards(JwtAuthGuard)
     public async createDaemon(@Body('publicKey') publicKey, @CurrentUser() user: User): Promise<Daemon | DaemonNotFoundError> {
-        console.log("user", user);
-        return await this.daemonService.createDaemon(publicKey);
+        return await this.daemonService.createDaemon(user.id, publicKey);
     }
 
 
