@@ -1,13 +1,25 @@
 import {ConsoleLogger, Inject, Injectable, Scope} from "@nestjs/common";
-import {ISettingsParam, Logger} from "tslog";
+import {ISettingsParam, Logger, TLogLevelName} from "tslog";
 import {ILogObject} from "tslog/src/interfaces";
+import {ConfigService} from "@nestjs/config";
 
 @Injectable({ scope: Scope.TRANSIENT })
 export class LoggingService {
     private logger: Logger;
 
-    constructor(@Inject('LOGGER_CONFIG') private loggerConfig: ISettingsParam) {
-        this.logger = new Logger(loggerConfig);
+    constructor(@Inject('LOGGER_CONFIG') private loggerSettings: ISettingsParam, private configService: ConfigService) {
+        console.log();
+        console.log(configService.get<string>('logging.maxLevel'));
+        this.logger = new Logger({
+            minLevel: configService.get<TLogLevelName>('logging.level'),
+            displayFunctionName: false,
+            displayFilePath: "hidden",
+            ...loggerSettings
+        });
+    }
+
+    public setSettings(loggerSettings: ISettingsParam) {
+        this.logger.setSettings(loggerSettings);
     }
 
     public silly(...args: unknown[]): ILogObject {

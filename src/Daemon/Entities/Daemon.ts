@@ -1,4 +1,5 @@
-﻿import {Column, Entity, PrimaryGeneratedColumn} from "typeorm";
+﻿import {Column, Entity, Index, ManyToOne, PrimaryGeneratedColumn} from "typeorm";
+import {User} from "../../User/Entities/User";
 
 @Entity()
 export class Daemon {
@@ -19,4 +20,7 @@ export class Daemon {
 
     @Column({default: false})
     public activated: boolean;
+
+    @ManyToOne(() => User, user => user.daemons)
+    public user: User;
 }

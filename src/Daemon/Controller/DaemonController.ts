@@ -1,8 +1,14 @@
-﻿import {Body, Controller, Param, Post} from "@nestjs/common";
+﻿import {Body, Controller, Param, Post, Req, UseGuards} from "@nestjs/common";
 import {DaemonService} from "../Services/DaemonService";
 import {Daemon} from "../Entities/Daemon";
 import {DaemonNotFoundError} from "../Errors/DaemonNotFoundError";
 import {InvalidSignatureError} from "../Errors/InvalidSignatureError";
+import {AuthGuard} from "@nestjs/passport";
+import {JwtAuthGuard} from "../../Auth/guards/JwtAuthGuard";
+import {Context} from "@nestjs/graphql";
+import {Request} from "express";
+import {CurrentUser} from "../../User/decorator/CurrentUser";
+import {User} from "../../User/Entities/User";
 
 const crypto = require("crypto");
 
@@ -12,7 +18,9 @@ export class DaemonController {
     }
 
     @Post('createDaemon')
-    public async createDaemon(@Body('publicKey') publicKey): Promise<Daemon | DaemonNotFoundError> {
+    @UseGuards(JwtAuthGuard)
+    public async createDaemon(@Body('publicKey') publicKey, @CurrentUser() user: User): Promise<Daemon | DaemonNotFoundError> {
+        console.log("user", user);
         return await this.daemonService.createDaemon(publicKey);
     }
 

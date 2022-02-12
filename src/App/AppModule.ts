@@ -1,9 +1,11 @@
 import {Module} from "@nestjs/common";
-import {ConfigModule} from "@nestjs/config";
+import {ConfigModule, ConfigService} from "@nestjs/config";
 import configuration from "../../config/configuration";
 import {AuthModule} from "../Auth/AuthModule";
-import {TypeOrmModule} from "@nestjs/typeorm";
+import {TypeOrmConnectionFactory, TypeOrmModule} from "@nestjs/typeorm";
 import {DaemonModule} from "../Daemon/DaemonModule";
+import {UserModule} from "../User/UserModule";
+import {ConnectionOptions} from "typeorm";
 
 @Module({
     imports: [
@@ -11,16 +13,23 @@ import {DaemonModule} from "../Daemon/DaemonModule";
             load: [configuration],
             isGlobal: true
         }),
-        // @ts-ignore
-        TypeOrmModule.forRoot({
-            autoLoadEntities: true,
-            entities: [
-                "dist/src/**/Entities/*.js",
-            ],
-            ...configuration().database,
+        TypeOrmModule.forRootAsync({
+            // @ts-ignore
+            useFactory: (configService: ConfigService) => {
+                return {
+                    autoLoadEntities: true,
+                    entities: [
+                        "dist/src/**/Entities/*.js",
+                    ],
+                    ...configService.get<ConnectionOptions>('database'),
+                }
+            },
+            inject: [ConfigService],
+
         }),
         AuthModule,
-        DaemonModule
+        DaemonModule,
+        UserModule
     ],
     controllers: [],
 })

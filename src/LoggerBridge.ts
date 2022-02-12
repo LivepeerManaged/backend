@@ -1,6 +1,7 @@
 ﻿import { LoggerService } from '@nestjs/common';
 import {Logger} from "tslog";
 import {yellow} from "colors";
+import configuration from "../config/configuration";
 
 export class LoggerBridge implements LoggerService {
     private logger: Logger;
@@ -8,7 +9,9 @@ export class LoggerBridge implements LoggerService {
         this.logger = new Logger({
             displayFunctionName: false,
             displayFilePath: 'hidden',
-            displayLoggerName: false
+            displayLoggerName: false,
+            // @ts-ignore
+            minLevel: configuration().logging.level // TODO Change this because you should not call configuration() directly since its dynamic and can change
         });
     }
 

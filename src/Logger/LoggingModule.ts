@@ -1,6 +1,7 @@
 ﻿import {DynamicModule, Module} from '@nestjs/common';
 import {LoggingService} from "./Services/loggingService";
 import {ISettingsParam} from "tslog";
+import {ConfigModule} from "@nestjs/config";
 
 /*
 @Module({
@@ -14,6 +15,9 @@ export class LoggingModule {
     static register(options: ISettingsParam): DynamicModule {
         return {
             module: LoggingModule,
+            imports: [
+                ConfigModule
+            ],
             providers: [
                 {
                     provide: 'LOGGER_CONFIG',

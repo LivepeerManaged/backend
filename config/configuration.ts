@@ -1,5 +1,10 @@
 ﻿export default () => ({
-    jwtSecret: process.env.JWT_SECRET || '123456',
+    jwt: {
+        secret: process.env.JWT_SECRET || '123456',
+    },
+    logging: {
+        level: 'trace'
+    },
     database: {
         type: 'mysql',
         host: 'localhost',
@@ -10,8 +15,9 @@
         dropSchema: true,
         synchronize: true,
         migrationsRun: true,
-        logging: true,
+        logging: false,
         cache: false,
     }
-    //TODO add loglevel
 });
+
+
