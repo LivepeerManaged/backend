@@ -5,18 +5,20 @@ import {DaemonService} from "./Services/DaemonService";
 import {Daemon} from "./Entities/Daemon";
 import {UserModule} from "../User/UserModule";
 import {AuthModule} from "../Auth/AuthModule";
+import {DaemonGateway} from "./Gateway/DaemonGateway";
+import {DaemonStrategy} from "./strategies/DaemonStrategy";
 
 @Module({
     imports: [
         TypeOrmModule.forFeature([Daemon]),
         forwardRef(() => UserModule),
-        forwardRef(() => AuthModule),
+        forwardRef(() => AuthModule)
     ],
     controllers: [
         DaemonController
     ],
     providers: [
-        DaemonService
+        DaemonService, DaemonStrategy, DaemonGateway
     ],
     exports: [
         DaemonService

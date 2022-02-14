@@ -3,10 +3,10 @@ import {TypeOrmModule} from "@nestjs/typeorm";
 import {UserService} from "./Services/UserService";
 import {User} from "./Entities/User";
 import {AuthModule} from "../Auth/AuthModule";
-import {LoggingService} from "../Logger/Services/loggingService";
 import {LoggingModule} from "../Logger/LoggingModule";
 import {UserController} from "./controller/UserController";
 import {DaemonModule} from "../Daemon/DaemonModule";
+import {UserStrategy} from "./strategies/UserStrategy";
 
 @Module({
     imports: [
@@ -14,24 +14,17 @@ import {DaemonModule} from "../Daemon/DaemonModule";
         forwardRef(() => AuthModule),
         forwardRef(() => DaemonModule),
         LoggingModule.register({
-            name: 'DaemonModule'
-        }),
+            name: 'UserModule'
+        })
     ],
     controllers: [
         UserController
     ],
     providers: [
-        UserService
+        UserService, UserStrategy
     ],
     exports: [
         UserService
     ]
 })
-export class UserModule {
-    constructor(private userService: UserService, private logger: LoggingService) {
-        const startTime = performance.now();
-        //logger.trace(`Took ${performance.now() - startTime} ms to createUser`)
-
-        //userService.createUser("Test@web.de", "123456");
-    }
-}
+export class UserModule {}
