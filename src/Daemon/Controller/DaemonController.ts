@@ -1,14 +1,7 @@
-﻿import {Body, Controller, Param, Post, Req, UseGuards} from "@nestjs/common";
+﻿import {Body, Controller, Post} from "@nestjs/common";
 import {DaemonService} from "../Services/DaemonService";
-import {Daemon} from "../Entities/Daemon";
-import {DaemonNotFoundError} from "../Errors/DaemonNotFoundError";
 import {InvalidSignatureError} from "../Errors/InvalidSignatureError";
-import {AuthGuard} from "@nestjs/passport";
-import {JwtAuthGuard} from "../../Auth/guards/JwtAuthGuard";
-import {Context} from "@nestjs/graphql";
-import {Request} from "express";
-import {CurrentUser} from "../../User/decorator/CurrentUser";
-import {User} from "../../User/Entities/User";
+import {ActivateDaemonDto} from "../dto/ActivateDaemonDto";
 
 const crypto = require("crypto");
 
@@ -17,34 +10,15 @@ export class DaemonController {
     constructor(private daemonService: DaemonService) {
     }
 
-    @Post('createDaemon')
-    @UseGuards(JwtAuthGuard)
-    public async createDaemon(@Body('publicKey') publicKey, @CurrentUser() user: User): Promise<Daemon | DaemonNotFoundError> {
-        return await this.daemonService.createDaemon(user.id, publicKey);
-    }
-
-
     @Post('activateDaemon')
-    public async activateDaemon(@Body('publicKey') publicKey: string, @Body('daemonSecret') daemonSecret: string, @Body('signature') signature: string) {
-        publicKey = this.removeWhitespaces(publicKey);
+    public async activateDaemon(@Body() activateDaemonDto: ActivateDaemonDto) {
+        const publicKey = this.removeWhitespaces(activateDaemonDto.publicKey);
 
-        if (!publicKey) {
-            return "Public key missing";
+        if (!this.verifySignature(publicKey, activateDaemonDto.daemonSecret, activateDaemonDto.signature)) {
+            throw new InvalidSignatureError(publicKey, activateDaemonDto.signature)
         }
 
-        if (!daemonSecret) {
-            return "daemonSecret missing";
-        }
-
-        if (!signature) {
-            return "signature missing";
-        }
-
-        if (!this.verifySignature(publicKey, daemonSecret, signature)) {
-            throw new InvalidSignatureError(publicKey, signature)
-        }
-
-        return await this.daemonService.activateDaemon(publicKey, daemonSecret);
+        return await this.daemonService.activateDaemon(publicKey, activateDaemonDto.daemonSecret);
     }
 
     private removeWhitespaces = (s: string) => s.replace(/ /g, '');
