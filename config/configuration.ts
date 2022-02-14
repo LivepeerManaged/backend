@@ -12,7 +12,7 @@
         username: 'root',
         password: '123456',
         database: 'livepeer_managed',
-        dropSchema: true,
+        dropSchema: false,
         synchronize: true,
         migrationsRun: true,
         logging: false,

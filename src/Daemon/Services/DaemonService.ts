@@ -3,7 +3,6 @@ import {EntityNotFoundError, Repository} from "typeorm";
 import {Daemon} from "../Entities/Daemon";
 import {InjectRepository} from "@nestjs/typeorm";
 import {DaemonNotFoundError} from "../Errors/DaemonNotFoundError";
-import {DaemonAlreadyExistsError} from "../Errors/DaemonAlreadyExistsError";
 import {DaemonSecretMismatchError} from "../Errors/DaemonSecretMismatchError";
 import {UserService} from "../../User/Services/UserService";
 import {AuthService} from "../../Auth/services/AuthService";
@@ -21,37 +20,39 @@ export class DaemonService {
         return result;
     }
 
-    async createDaemon(userId: string, publicKey: string): Promise<Daemon> {
+    /**
+     * Created a daemon for given userId and returns the secret if successful
+     * @param userId
+     * @returns secret
+     */
+    async createDaemon(userId: string): Promise<string> {
         const daemon = this.daemonRepository.create({
-            publicKey: publicKey,
-            daemonSecret: DaemonService.generateSecret(32),
+            secret: DaemonService.generateSecret(32),
             user: await this.userService.getUserById(userId)
         });
 
-        await this.daemonRepository.insert(daemon).catch(e => {
-            throw new DaemonAlreadyExistsError(publicKey);
-        });
+        await this.daemonRepository.insert(daemon);
 
-        return daemon;
+        return daemon.secret;
     }
 
-    async getDaemonByPublicKey(publicKey: string): Promise<Daemon> {
-        const foundDaemon = await this.daemonRepository.findOne({where: {publicKey: publicKey}});
+    async getDaemonById(id: string): Promise<Daemon> {
+        const foundDaemon = await this.daemonRepository.findOne({where: {id: id}});
 
         if (!foundDaemon)
-            throw new DaemonNotFoundError(publicKey);
+            throw new DaemonNotFoundError(id);
 
         return foundDaemon;
     }
 
-    async login(publicKey: string, secret: string): Promise<string> {
-        const daemonByPublicKey = await this.getDaemonByPublicKey(publicKey);
+    async login(id: string, secret: string): Promise<string> {
+        const daemonByPublicKey = await this.getDaemonById(id);
 
-        if (secret !== daemonByPublicKey.daemonSecret)
-            throw new DaemonSecretMismatchError(publicKey, secret);
+        if (secret !== daemonByPublicKey.secret)
+            throw new DaemonSecretMismatchError(id, secret);
 
         return this.authService.signJwt({
-            id: daemonByPublicKey.id
+            aud: daemonByPublicKey.id
         })
     }
 }

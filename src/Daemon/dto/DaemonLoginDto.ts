@@ -2,11 +2,13 @@
 
 export class DaemonLoginDto {
     @IsNotEmpty()
-    publicKey: string;
+    id: string;
 
     @IsNotEmpty()
     secret: string;
 
+/*
     @IsNotEmpty()
     signature: string;
+ */
 }

@@ -6,11 +6,11 @@ export class Daemon {
     @PrimaryGeneratedColumn('uuid')
     public id: string;
 
-    @Column({length: 360, unique: true})
+    @Column({length: 360, unique: true, nullable: true})
     public publicKey: string;
 
     @Column()
-    public daemonSecret: string;
+    public secret: string;
 
     @Column({default: 'Daemon'})
     public label: string;

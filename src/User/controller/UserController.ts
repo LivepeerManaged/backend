@@ -1,13 +1,13 @@
-﻿import {Body, Controller, Post, UseGuards} from "@nestjs/common";
+﻿import {Body, Controller, Get, Param, Post, UseGuards} from "@nestjs/common";
 import {CreateUserDto} from "../dto/CreateUserDto";
 import {UserService} from "../Services/UserService";
 import {LoginUserDto} from "../dto/LoginUserDto";
 import {DaemonService} from "../../Daemon/Services/DaemonService";
-import {JwtAuthGuard} from "../../Auth/guards/JwtAuthGuard";
+import {UserAuthGuard} from "../guards/UserAuthGuard";
 import {CurrentUser} from "../decorator/CurrentUser";
 import {User} from "../Entities/User";
 import {Daemon} from "../../Daemon/Entities/Daemon";
-import {DaemonAlreadyExistsError} from "../../Daemon/Errors/DaemonAlreadyExistsError";
+import {DaemonNotFoundError} from "../../Daemon/Errors/DaemonNotFoundError";
 
 @Controller('user')
 export class UserController {
@@ -24,9 +24,26 @@ export class UserController {
         return this.userService.createUser(email, password);
     }
 
-    @Post('createDaemon')
-    @UseGuards(JwtAuthGuard)
-    public async createDaemon(@Body('publicKey') publicKey, @CurrentUser() user: User): Promise<Daemon> {
-        return await this.daemonService.createDaemon(user.id, publicKey);
+    @Post('daemon')
+    @UseGuards(UserAuthGuard)
+    public async createDaemon(@CurrentUser() user: User): Promise<string> {
+        return this.daemonService.createDaemon(user.id);
+    }
+
+    @Get('daemon')
+    @UseGuards(UserAuthGuard)
+    public async listDaemons(@CurrentUser() user: User): Promise<Array<Daemon>> {
+        return user.daemons;
+    }
+
+    @Get('daemon/:id')
+    @UseGuards(UserAuthGuard)
+    public async getDaemon(@Param('id') id: string, @CurrentUser() user: User): Promise<Daemon> {
+        let daemon = user.daemons.find(daemon => daemon.id === id);
+
+        if(!daemon)
+            throw new DaemonNotFoundError(id);
+
+        return daemon;
     }
 }

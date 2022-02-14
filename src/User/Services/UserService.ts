@@ -28,9 +28,7 @@ export class UserService {
         await this.userRepository.insert(user).catch(e => {
             throw new UserAlreadyRegisteredError(email)
         });
-        return this.authService.signJwt({
-            id: user.id
-        });
+        return this.login(email, password);
     }
 
     /**
@@ -39,7 +37,7 @@ export class UserService {
      * @return User
      */
     async getUserById(id: string): Promise<User> {
-        return await this.userRepository.findOne(id);
+        return this.userRepository.findOne(id);
     }
 
     /**
@@ -55,7 +53,7 @@ export class UserService {
             throw new InvalidCredentials(email);
 
         return this.authService.signJwt({
-            id: user.id
+            aud: user.id
         });
     }
 }

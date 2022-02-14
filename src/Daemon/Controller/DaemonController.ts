@@ -1,6 +1,5 @@
 ﻿import {Body, Controller, Post} from "@nestjs/common";
 import {DaemonService} from "../Services/DaemonService";
-import {InvalidSignatureError} from "../Errors/InvalidSignatureError";
 import {DaemonLoginDto} from "../dto/DaemonLoginDto";
 
 const crypto = require("crypto");
@@ -11,12 +10,14 @@ export class DaemonController {
     }
 
     @Post('login')
-    public async login(@Body() {publicKey, secret, signature}: DaemonLoginDto) {
-        if (!this.verifySignature(publicKey, secret, signature)) {
-            throw new InvalidSignatureError(publicKey, signature)
-        }
+    public async login(@Body() {id, secret}: DaemonLoginDto) {
+        /*
+            if (!this.verifySignature(id, secret, signature)) {
+                throw new InvalidSignatureError(id, signature)
+            }
+         */
 
-        return this.daemonService.login(publicKey, secret)
+        return this.daemonService.login(id, secret)
     }
 
     private removeWhitespaces = (s: string) => s.replace(/ /g, '');
@@ -24,8 +25,8 @@ export class DaemonController {
     private verifySignature(publicKey: string, data: string, signature: string) {
         publicKey = this.removeWhitespaces(publicKey);
 
-        if(!publicKey.startsWith("-----BEGIN RSA PUBLIC KEY-----"))
-          publicKey = this.convertDerPublicToPem(publicKey);
+        if (!publicKey.startsWith("-----BEGIN RSA PUBLIC KEY-----"))
+            publicKey = this.convertDerPublicToPem(publicKey);
 
         return crypto.verify("RSA-SHA1", Buffer.from(data), crypto.createPublicKey(publicKey), Buffer.from(signature, "base64"));
     }

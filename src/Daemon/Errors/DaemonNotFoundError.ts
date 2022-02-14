@@ -1,9 +1,9 @@
 ﻿import {BaseError} from "../../BaseError";
 
 export class DaemonNotFoundError extends BaseError {
-    constructor(publicKey) {
+    constructor(id: string) {
         super('DaemonNotFound', `Daemon was not found!`, [
-                ['publicKey', publicKey]
+                ['publicKey', id]
             ]
         );
     }

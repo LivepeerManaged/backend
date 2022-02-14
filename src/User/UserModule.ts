@@ -6,14 +6,16 @@ import {AuthModule} from "../Auth/AuthModule";
 import {LoggingService} from "../Logger/Services/loggingService";
 import {LoggingModule} from "../Logger/LoggingModule";
 import {UserController} from "./controller/UserController";
+import {DaemonModule} from "../Daemon/DaemonModule";
 
 @Module({
     imports: [
         TypeOrmModule.forFeature([User]),
         forwardRef(() => AuthModule),
+        forwardRef(() => DaemonModule),
         LoggingModule.register({
             name: 'DaemonModule'
-        })
+        }),
     ],
     controllers: [
         UserController
@@ -30,6 +32,6 @@ export class UserModule {
         const startTime = performance.now();
         //logger.trace(`Took ${performance.now() - startTime} ms to createUser`)
 
-        userService.createUser("Test@web.de", "123456");
+        //userService.createUser("Test@web.de", "123456");
     }
 }

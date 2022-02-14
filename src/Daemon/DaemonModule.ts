@@ -9,8 +9,8 @@ import {AuthModule} from "../Auth/AuthModule";
 @Module({
     imports: [
         TypeOrmModule.forFeature([Daemon]),
-        UserModule,
-        AuthModule
+        forwardRef(() => UserModule),
+        forwardRef(() => AuthModule),
     ],
     controllers: [
         DaemonController
@@ -18,6 +18,9 @@ import {AuthModule} from "../Auth/AuthModule";
     providers: [
         DaemonService
     ],
+    exports: [
+        DaemonService
+    ]
 })
 export class DaemonModule {
 
