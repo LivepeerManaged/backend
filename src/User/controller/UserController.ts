@@ -26,7 +26,7 @@ export class UserController {
 
     @Post('createDaemon')
     @UseGuards(JwtAuthGuard)
-    public async createDaemon(@Body('publicKey') publicKey, @CurrentUser() user: User): Promise<Daemon | DaemonAlreadyExistsError> {
+    public async createDaemon(@Body('publicKey') publicKey, @CurrentUser() user: User): Promise<Daemon> {
         return await this.daemonService.createDaemon(user.id, publicKey);
     }
 }
