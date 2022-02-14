@@ -11,14 +11,12 @@ export class DaemonController {
     }
 
     @Post('login')
-    public async login(@Body() daemonLoginDto: DaemonLoginDto) {
-        const publicKey = this.removeWhitespaces(daemonLoginDto.publicKey);
-
-        if (!this.verifySignature(publicKey, daemonLoginDto.secret, daemonLoginDto.signature)) {
-            throw new InvalidSignatureError(publicKey, daemonLoginDto.signature)
+    public async login(@Body() {publicKey, secret, signature}: DaemonLoginDto) {
+        if (!this.verifySignature(publicKey, secret, signature)) {
+            throw new InvalidSignatureError(publicKey, signature)
         }
 
-        return this.daemonService.login(publicKey, daemonLoginDto.secret)
+        return this.daemonService.login(publicKey, secret)
     }
 
     private removeWhitespaces = (s: string) => s.replace(/ /g, '');

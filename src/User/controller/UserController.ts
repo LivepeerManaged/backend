@@ -15,13 +15,13 @@ export class UserController {
     }
 
     @Post('login')
-    public login(@Body() loginUserDto: LoginUserDto) {
-        return this.userService.login(loginUserDto.email, loginUserDto.password)
+    public login(@Body() {email, password}: LoginUserDto) {
+        return this.userService.login(email, password)
     }
 
     @Post('register')
-    public register(@Body() createUserDto: CreateUserDto) {
-        return this.userService.createUser(createUserDto.email, createUserDto.password);
+    public register(@Body() {email, password}: CreateUserDto) {
+        return this.userService.createUser(email, password);
     }
 
     @Post('createDaemon')
