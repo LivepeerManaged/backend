@@ -6,10 +6,11 @@ import {DaemonNotFoundError} from "../Errors/DaemonNotFoundError";
 import {DaemonAlreadyExistsError} from "../Errors/DaemonAlreadyExistsError";
 import {DaemonSecretMismatchError} from "../Errors/DaemonSecretMismatchError";
 import {UserService} from "../../User/Services/UserService";
+import {AuthService} from "../../Auth/services/AuthService";
 
 @Injectable()
 export class DaemonService {
-    constructor(@InjectRepository(Daemon) private daemonRepository: Repository<Daemon>, private userService: UserService) {
+    constructor(@InjectRepository(Daemon) private daemonRepository: Repository<Daemon>, private userService: UserService, private authService: AuthService) {
     }
 
     private static generateSecret(length) {
@@ -30,37 +31,27 @@ export class DaemonService {
         await this.daemonRepository.insert(daemon).catch(e => {
             throw new DaemonAlreadyExistsError(publicKey);
         });
+
         return daemon;
     }
 
     async getDaemonByPublicKey(publicKey: string): Promise<Daemon> {
-        try {
-            return await this.daemonRepository.findOneOrFail({where: {publicKey: publicKey}});
-        } catch (e) {
-            if(e instanceof EntityNotFoundError) {
-                throw new DaemonNotFoundError(publicKey);
-            }
-        }
+        const foundDaemon = await this.daemonRepository.findOne({where: {publicKey: publicKey}});
+
+        if (!foundDaemon)
+            throw new DaemonNotFoundError(publicKey);
+
+        return foundDaemon;
     }
 
-    async activateDaemon(publicKey: string, daemonSecret: string): Promise<boolean> {
-        const daemonEntity: Daemon = await this.getDaemonByPublicKey(publicKey);
+    async login(publicKey: string, secret: string): Promise<string> {
+        const daemonByPublicKey = await this.getDaemonByPublicKey(publicKey);
 
-        if(daemonSecret != daemonEntity.daemonSecret) {
-            throw new DaemonSecretMismatchError(publicKey, daemonSecret);
-        }
+        if (secret !== daemonByPublicKey.daemonSecret)
+            throw new DaemonSecretMismatchError(publicKey, secret);
 
-        daemonEntity.activated = true;
-
-        await this.daemonRepository.save(daemonEntity);
-        return true;
+        return this.authService.signJwt({
+            id: daemonByPublicKey.id
+        })
     }
-
-    /*
-    private convertDerPublicToPem(der) {
-        const prefix = '-----BEGIN RSA PUBLIC KEY-----\n';
-        const postfix = '-----END RSA PUBLIC KEY-----';
-        return prefix + der.match(/.{0,64}/g).join('\n') + postfix;
-    }
-     */
 }

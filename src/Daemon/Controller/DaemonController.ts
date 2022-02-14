@@ -1,7 +1,7 @@
 ﻿import {Body, Controller, Post} from "@nestjs/common";
 import {DaemonService} from "../Services/DaemonService";
 import {InvalidSignatureError} from "../Errors/InvalidSignatureError";
-import {ActivateDaemonDto} from "../dto/ActivateDaemonDto";
+import {DaemonLoginDto} from "../dto/DaemonLoginDto";
 
 const crypto = require("crypto");
 
@@ -10,15 +10,15 @@ export class DaemonController {
     constructor(private daemonService: DaemonService) {
     }
 
-    @Post('activateDaemon')
-    public async activateDaemon(@Body() activateDaemonDto: ActivateDaemonDto) {
-        const publicKey = this.removeWhitespaces(activateDaemonDto.publicKey);
+    @Post('login')
+    public async login(@Body() daemonLoginDto: DaemonLoginDto) {
+        const publicKey = this.removeWhitespaces(daemonLoginDto.publicKey);
 
-        if (!this.verifySignature(publicKey, activateDaemonDto.daemonSecret, activateDaemonDto.signature)) {
-            throw new InvalidSignatureError(publicKey, activateDaemonDto.signature)
+        if (!this.verifySignature(publicKey, daemonLoginDto.secret, daemonLoginDto.signature)) {
+            throw new InvalidSignatureError(publicKey, daemonLoginDto.signature)
         }
 
-        return await this.daemonService.activateDaemon(publicKey, activateDaemonDto.daemonSecret);
+        return this.daemonService.login(publicKey, daemonLoginDto.secret)
     }
 
     private removeWhitespaces = (s: string) => s.replace(/ /g, '');
